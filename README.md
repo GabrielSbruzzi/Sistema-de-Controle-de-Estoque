@@ -1,7 +1,5 @@
 # 🎮 Sistema de Controle de Estoque
 
-![GitHub Repo Size](https://img.shields.io/github/repo-size/GabrielSbruzzi/Sistema-de-Controle-de-Estoque.git) ![GitHub Stars](https://img.shields.io/github/stars/GabrielSbruzzi/Sistema-de-Controle-de-Estoque.git) ![License](https://img.shields.io/github/licenseGabrielSbruzzi/Sistema-de-Controle-de-Estoque.git)
-
 Um **sistema web de controle de estoque** desenvolvido em **HTML, CSS, JavaScript** integrado a um backend em **Spring Boot**
 ---
 
