@@ -45,6 +45,38 @@
     </style>
 </head>
 <body>
+<nav class="nav-links">
+    <a href="Dashboard-relatorios-estoque.html">Dashboard</a>
+    <a href="index.html">Movimentações</a>
+    <a href="client-web-crud.html">Gerenciar Produtos</a>
+    <a href="listagem.html">Listagem Simples</a>
+</nav>
+
+<style>
+    .nav-links {
+        display: flex;
+        justify-content: center; /* centraliza os links */
+        gap: 20px; /* espaçamento entre os links */
+        padding: 15px 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .nav-links a {
+        text-decoration: none;
+        font-weight: 600;
+        color: #4f83ff;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease; /* animação suave */
+    }
+
+    .nav-links a:hover {
+        background-color: #4f83ff;
+        color: white;
+        transform: translateY(-2px); /* efeito leve de “subida” */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+</style>
 <div class="container">
     <h1>Sistema de Controle de Estoque</h1>
 
