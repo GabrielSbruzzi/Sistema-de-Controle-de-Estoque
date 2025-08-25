@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Estoque</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #f5f7fa; padding: 20px; color: #333; }
+        h1 { text-align: center; margin-bottom: 20px; color: #2c3e50; }
+        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .form-group { display: flex; flex-direction: column; margin-bottom: 15px; }
+        .form-group label { margin-bottom: 5px; font-weight: 600; }
+        .form-group input, .form-group select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px; width: 100%; }
+        .buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        .buttons button { padding: 10px 20px; border: none; border-radius: 6px; color: #fff; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
+        .buttons button:hover { opacity: 0.9; }
+        .btn-salvar { background-color: #27ae60; }
+        .btn-atualizar { background-color: #2980b9; }
+        .btn-deletar { background-color: #c0392b; }
+        .btn-consultar { background-color: #7f8c8d; }
+        .btn-limpar { background-color: #34495e; }
+        h2 { margin-bottom: 10px; color: #2c3e50; }
+        .produto-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+        .produto-card { background: #ecf0f1; border-radius: 10px; padding: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 8px; }
+        .produto-card span { font-weight: 500; }
+        .status { padding: 4px 8px; border-radius: 6px; font-size: 14px; color: #fff; width: fit-content; text-transform: capitalize; }
+        .status.Disponível { background-color: #27ae60; }
+        .status.Indisponível { background-color: #c0392b; }
+        .status.EmPromoção { background-color: #f39c12; }
+        .status.Esgotado { background-color: #7f8c8d; }
+        .status.EmReposição { background-color: #2980b9; }
+        .btn-csv {
+    background-color: #16a085; /* verde água */
+}
+.btn-pdf {
+    background-color: #e67e22; /* laranja */
+}
+
+.btn-csv:hover { opacity: 0.9; }
+.btn-pdf:hover { opacity: 0.9; }
+
+        #total-produtos { margin-top: 15px; font-weight: bold; text-align: right; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Sistema de Controle de Estoque</h1>
+
+    <div class="form-group">
+        <label for="id">ID:</label>
+        <input type="text" id="id" placeholder="Informe o ID (para atualizar/deletar)">
+    </div>
+    <div class="form-group">
+        <label for="tipo">Tipo:</label>
+        <input type="text" id="tipo" placeholder="Ex: Teclado, Mouse, Headset">
+    </div>
+    <div class="form-group">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" placeholder="Nome do produto">
+    </div>
+    <div class="form-group">
+        <label for="preco">Preço:</label>
+        <input type="text" id="preco" placeholder="Preço do produto">
+    </div>
+    <div class="form-group">
+        <label for="quantidade">Quantidade:</label>
+        <input type="text" id="quantidade" placeholder="Quantidade em estoque">
+    </div>
+    <div class="form-group">
+        <label for="status">Status:</label>
+        <select id="status">
+            <option value="">Selecione...</option>
+            <option value="Disponível">Disponível</option>
+            <option value="Indisponível">Indisponível</option>
+            <option value="Esgotado">Esgotado</option>
+            <option value="Em Reposição">Em Reposição</option>
+            <option value="Em Promoção">Em promoção</option>
+        </select>
+    </div>
+
+    <div class="buttons">
+        <button class="btn-salvar" onclick="salvar()">Salvar</button>
+        <button class="btn-atualizar" onclick="atualizar()">Atualizar</button>
+        <button class="btn-deletar" onclick="deletar()">Deletar</button>
+        <button class="btn-consultar" onclick="carregarCampos()">Consultar</button>
+        <button class="btn-limpar" onclick="limparCampos()">Limpar Campos</button>
+        <button class="btn-csv" onclick="exportarCSV()">Exportar CSV</button>
+        <button class="btn-pdf" onclick="exportarPDF()">Exportar PDF</button>
+    </div>
+
+    <h2>Lista de Produtos</h2>
+    <div id="lista-produtos" class="produto-lista"></div>
+    <p id="total-produtos"></p>
+</div>
+
+<script>
+    const BASE_URL = 'http://localhost:8080/produtos';
+
+    function getProdutoFromForm() {
+        const nome = document.getElementById('nome').value;
+        const tipo = document.getElementById('tipo').value;
+        const preco = document.getElementById('preco').value;
+        const quantidade = document.getElementById('quantidade').value;
+        const status = document.getElementById('status').value;
+        return { nome, tipo, preco: parseFloat(preco), quantidade: parseInt(quantidade), status };
+    }
+
+    async function listarTodos() {
+        try {
+            const response = await fetch(BASE_URL);
+            if (!response.ok) throw new Error("Erro ao listar produtos");
+            const produtos = await response.json();
+            const lista = document.getElementById('lista-produtos');
+            const total = document.getElementById('total-produtos');
+            lista.innerHTML = '';
+            produtos.forEach(produto => {
+                const card = document.createElement('div');
+                card.className = 'produto-card';
+                const tipo = produto.tipo || 'Não informado';
+                const status = produto.status || 'Indisponível';
+                const statusClass = status.replace(/\s+/g, '');
+                card.innerHTML = `
+                    <span><strong>ID:</strong> ${produto.id}</span>
+                    <span><strong>Tipo:</strong> ${tipo}</span>
+                    <span><strong>Nome:</strong> ${produto.nome}</span>
+                    <span><strong>Preço:</strong> R$ ${produto.preco.toFixed(2)}</span>
+                    <span><strong>Quantidade:</strong> ${produto.quantidade}</span>
+                    <span class="status ${statusClass}">${status}</span>
+                `;
+                lista.appendChild(card);
+            });
+            total.textContent = `Total de produtos: ${produtos.length}`;
+        } catch (e) {
+            console.error(e);
+            alert("Falha ao carregar lista de produtos!");
+        }
+    }
+
+    async function salvar() {
+        const produto = getProdutoFromForm();
+        try {
+            const response = await fetch(BASE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(produto)
+            });
+            if (!response.ok) throw new Error("Erro ao salvar produto");
+            listarTodos();
+            alert("Produto salvo com sucesso!");
+        } catch (e) {
+            console.error(e);
+            alert("Falha ao salvar produto!");
+        }
+    }
+
+    async function atualizar() {
+        const produto = getProdutoFromForm();
+        const id = document.getElementById('id').value;
+        if (!id) { alert("Informe o ID para atualizar!"); return; }
+        try {
+            const response = await fetch(`${BASE_URL}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(produto)
+            });
+            if (!response.ok) throw new Error("Erro ao atualizar produto");
+            listarTodos();
+            alert("Produto atualizado com sucesso!");
+        } catch (e) {
+            console.error(e);
+            alert("Falha ao atualizar produto!");
+        }
+    }
+
+    async function deletar() {
+        const id = document.getElementById('id').value;
+        if (!id) { alert("Informe o ID para deletar!"); return; }
+        try {
+            const response = await fetch(`${BASE_URL}/${id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error("Erro ao deletar produto");
+            listarTodos();
+            alert("Produto deletado com sucesso!");
+        } catch (e) {
+            console.error(e);
+            alert("Falha ao deletar produto!");
+        }
+    }
+
+    async function carregarCampos() {
+        const id = document.getElementById('id').value;
+        if (!id) { alert("Informe o ID para consultar!"); return; }
+        try {
+            const response = await fetch(`${BASE_URL}/${id}`);
+            if (!response.ok) throw new Error("Produto não encontrado");
+            const produto = await response.json();
+            document.getElementById('nome').value = produto.nome;
+            document.getElementById('tipo').value = produto.tipo;
+            document.getElementById('preco').value = produto.preco;
+            document.getElementById('quantidade').value = produto.quantidade;
+            document.getElementById('status').value = produto.status;
+        } catch (e) {
+            console.error(e);
+            alert("Falha ao consultar produto!");
+        }
+    }
+
+    function limparCampos() {
+        document.getElementById('id').value = '';
+        document.getElementById('nome').value = '';
+        document.getElementById('tipo').value = '';
+        document.getElementById('preco').value = '';
+        document.getElementById('quantidade').value = '';
+        document.getElementById('status').value = '';
+    }
+    function exportarCSV() {
+    const produtos = [];
+    document.querySelectorAll('.produto-card').forEach(card => {
+        produtos.push({
+            id: card.querySelector('span:nth-child(1)').textContent.replace('ID: ', ''),
+            tipo: card.querySelector('span:nth-child(2)').textContent.replace('Tipo: ', ''),
+            nome: card.querySelector('span:nth-child(3)').textContent.replace('Nome: ', ''),
+            preco: card.querySelector('span:nth-child(4)').textContent.replace('Preço: R$ ', ''),
+            quantidade: card.querySelector('span:nth-child(5)').textContent.replace('Quantidade: ', ''),
+            status: card.querySelector('span.status').textContent
+        });
+    });
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "ID,Tipo,Nome,Preço,Quantidade,Status\n";
+    produtos.forEach(prod => {
+        csvContent += `${prod.id},${prod.tipo},${prod.nome},${prod.preco},${prod.quantidade},${prod.status}\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "produtos_estoque.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+function exportarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 10;
+    const pageWidth = doc.internal.pageSize.getWidth() - 20; // Margem de 10
+
+    doc.setFontSize(14);
+    doc.text("Lista de Produtos - Estoque", 10, y);
+    y += 10;
+
+    document.querySelectorAll('.produto-card').forEach(card => {
+        const id = card.querySelector('span:nth-child(1)').textContent;
+        const tipo = card.querySelector('span:nth-child(2)').textContent;
+        const nome = card.querySelector('span:nth-child(3)').textContent;
+        const preco = card.querySelector('span:nth-child(4)').textContent;
+        const quantidade = card.querySelector('span:nth-child(5)').textContent;
+        const status = card.querySelector('span.status').textContent;
+
+        const linha = `${id} | ${tipo} | ${nome} | ${preco} | ${quantidade} | ${status}`;
+        const textLines = doc.splitTextToSize(linha, pageWidth); // Quebra automática
+
+        doc.setFontSize(12);
+        doc.text(textLines, 10, y);
+        y += textLines.length * 8;
+
+        // Quebra de página se necessário
+        if (y > 280) {
+            doc.addPage();
+            y = 10;
+        }
+    });
+
+    doc.save("produtos_estoque.pdf");
+}
+
+
+
+
+    document.addEventListener('DOMContentLoaded', listarTodos);
+</script>
+</body>
+</html>
