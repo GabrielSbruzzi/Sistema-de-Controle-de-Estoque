@@ -27,3 +27,11 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+# Pastas do IDE
+.idea/
+*.iml
+
+# Build
+target/
+*.class
