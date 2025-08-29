@@ -1,25 +1,29 @@
 # 🎮 Sistema de Controle de Estoque
 
-Um **sistema web de controle de estoque** desenvolvido em **HTML, CSS, JavaScript** integrado a um backend em **Spring Boot**
+Um **sistema web de controle de estoque** desenvolvido com **HTML, CSS e JavaScript** no frontend, integrado a um backend em **Spring Boot**.  
+Permite gerenciar produtos, registrar movimentações e visualizar o estoque de forma organizada e interativa.
+
 ---
 
 ## 💡 Funcionalidades
 
-* ✅ Adicionar produtos com ID, nome, tipo, preço, quantidade e status.
-* ✅ Atualizar informações de produtos existentes.
-* ✅ Deletar produtos do estoque.
-* ✅ Consultar produtos individualmente por ID.
-* ✅ Visualizar lista de produtos com cards bonitos e status colorido.
-* ✅ Filtro de status com opções: Disponível, Indisponível, Em Promoção, Esgotado, Em Reposição.
+- ✅ **Adicionar produtos** com ID, nome, tipo, preço, quantidade e status.  
+- ✅ **Atualizar produtos** existentes.  
+- ✅ **Deletar produtos** do estoque.  
+- ✅ **Consultar produtos** individualmente por ID.  
+- ✅ **Visualizar lista de produtos** em cards modernos com status colorido.  
+- ✅ **Filtrar produtos** por status: Disponível, Indisponível, Em Promoção, Esgotado, Em Reposição.  
+- ✅ **Registrar movimentações** de entrada e saída de produtos.  
+- ✅ **Exportar listas** de produtos em CSV e PDF (frontend).  
 
 ---
 
 ## ⚙️ Tecnologias Utilizadas
 
-* **Frontend:** HTML5, CSS3, JavaScript
-* **Backend:** Java Spring Boot
-* **Banco de Dados:** H2 / MySQL (configurável)
-* **API REST** para comunicação entre frontend e backend
+- **Frontend:** HTML5, CSS3, JavaScript  
+- **Backend:** Java Spring Boot  
+- **Banco de Dados:** H2 (em memória) / MySQL (configurável)  
+- **Comunicação:** API REST entre frontend e backend  
 
 ---
 
@@ -27,27 +31,31 @@ Um **sistema web de controle de estoque** desenvolvido em **HTML, CSS, JavaScrip
 
 ### Pré-requisitos
 
-* Java 17+
-* Maven
-* Node.js (opcional, apenas para desenvolvimento frontend)
-* IDE (IntelliJ, Eclipse ou VS Code)
+- Java 17 ou superior  
+- Maven  
+- Node.js (opcional, apenas para desenvolvimento frontend)  
+- IDE de sua preferência (IntelliJ, Eclipse ou VS Code)
 
-### Passo a passo
 
-1. Clone o repositório:
+## 📈 Possíveis Melhorias Futuras
 
-```bash
-git clone https://github.com/GabrielSbruzzi/Sistema-de-Controle-de-Estoque.git
-cd seurepositorio
-```
----
-
-## 📈 Melhoria e Futuro
-
-* Implementar autenticação de usuário (login/admin).
+* 🔐 Implementar **autenticação de usuário** (login/admin).
+* 🗂️ Melhorar exportação de PDF com **layout profissional**.
 
 ---
 
 ## 📌 Licença
 
-Este projeto está licenciado sob a **MIT License** – veja o arquivo [LICENSE](LICENSE) para detalhes.
+Este projeto está licenciado sob a **MIT License**.
+Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+---
+
+## 👨‍💻 Desenvolvedor
+
+**Gabriel Sbruzzi**
+[GitHub](https://github.com/GabrielSbruzzi) | [LinkedIn](https://www.linkedin.com/in/gabriel-sbruzzi/)
+
+```
+Quer que eu faça essa versão?
+```
