@@ -10,12 +10,13 @@ import jakarta.validation.constraints.NotEmpty;
 public class Produto {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotEmpty(message = "Informe um nome.")
     private String nome;
 
+    private String descricao;
     private int quantidade;
     private double preco;
     private String status;
@@ -24,51 +25,30 @@ public class Produto {
     public Produto() {}
 
     // Construtor completo
-    public Produto(String nome, int quantidade, double preco, String status) {
+    public Produto(String nome, String descricao, int quantidade, double preco, String status) {
         this.nome = nome;
+        this.descricao = descricao;
         this.quantidade = quantidade;
         this.preco = preco;
         this.status = status;
     }
 
     // Getters e Setters
-    public int getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
 
-    public String getNome() {
-        return nome;
-    }
+    public String getDescricao() { return descricao; }
+    public void setDescricao(String descricao) { this.descricao = descricao; }
 
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
+    public int getQuantidade() { return quantidade; }
+    public void setQuantidade(int quantidade) { this.quantidade = quantidade; }
 
-    public int getQuantidade() {
-        return quantidade;
-    }
+    public double getPreco() { return preco; }
+    public void setPreco(double preco) { this.preco = preco; }
 
-    public void setQuantidade(int quantidade) {
-        this.quantidade = quantidade;
-    }
-
-    public double getPreco() {
-        return preco;
-    }
-
-    public void setPreco(double preco) {
-        this.preco = preco;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }

@@ -1,71 +1,63 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard • Controle de Estoque</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Produtos • Dashboard Estoque</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        body{font-family:'Inter',sans-serif;background:#f4f6f9;margin:0;padding:0;}
-        .container{max-width:1200px;margin:auto;padding:20px;}
-        header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:20px;}
-        header h1{font-size:20px;margin:0;}
-        .actions{display:flex;gap:8px;flex-wrap:wrap;}
-        input,select,button{padding:6px 10px;border:1px solid #ccc;border-radius:6px;}
-        button{background:#4f83ff;color:#fff;border:none;cursor:pointer;}
-        button:hover{background:#3b6be0;}
-        .grid.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:20px;}
-        .kpi{background:#fff;padding:14px;border-radius:10px;box-shadow:0 2px 5px rgba(0,0,0,.08);text-align:center;}
-        .kpi h2{margin:6px 0;font-size:20px;color:#4f83ff;}
-        .row{display:flex;flex-wrap:wrap;gap:12px;}
-        .card{background:#fff;padding:14px;border-radius:10px;box-shadow:0 2px 5px rgba(0,0,0,.08);flex:1;min-width:300px;}
-        .chart-title{margin-bottom:6px;font-weight:500;}
-        table{width:100%;border-collapse:collapse;margin-top:12px;}
-        table th,table td{padding:8px;border:1px solid #ddd;text-align:left;}
-        table th{background:#f1f3f6;}
+        html, body { height:100%; margin:0; font-family:'Inter',sans-serif; background:#f4f6f9; display:flex; flex-direction:column;}
+        header { display:flex; flex-direction:column; align-items:center; padding:20px; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,0.05);}
+        header .logo img { height:50px; margin-bottom:10px;}
+        .nav-links { display:flex; justify-content:center; gap:20px; font-weight:600;}
+        .nav-links a { text-decoration:none; color:#4f83ff; padding:8px 16px; border-radius:8px; transition:all 0.3s ease; }
+        .nav-links a:hover { background:#4f83ff; color:#fff; transform:translateY(-2px); box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+        main { flex:1; padding:20px; max-width:1200px; margin:auto; width:100%;}
+        .container { background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.08);}
+        h1{color:#2c3e50;margin-bottom:15px;}
+        .actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px;}
+        input, select, button{padding:6px 10px;border:1px solid #ccc;border-radius:6px;transition:0.2s;}
+        input:focus, select:focus{border-color:#4f83ff;outline:none;}
+        button{background:#4f83ff;color:#fff;border:none;cursor:pointer;font-weight:600;}
+        button:hover{background:#3b6be0;transform:translateY(-1px);}
+        .kpis{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
+        .kpi{flex:1;min-width:150px;background:#fff;padding:15px;border-radius:10px;box-shadow:0 2px 5px rgba(0,0,0,0.08);text-align:center;}
+        .kpi h2{margin:5px 0;color:#4f83ff;}
+        .charts{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px;}
+        .chart-card{flex:1;min-width:300px;background:#fff;padding:14px;border-radius:10px;box-shadow:0 2px 5px rgba(0,0,0,0.08);}
+        .chart-title{font-weight:500;margin-bottom:6px;}
+        table.dataTable{width:100%;background:#fff;border-radius:10px;overflow:hidden;margin-top:20px;}
+        footer { text-align:center; padding:15px 0; background:#f1f3f6; border-top:1px solid #ddd; color:#555; font-size:14px;}
         .alert{color:#e74c3c;font-weight:600;}
     </style>
 </head>
 <body>
-<nav class="nav-links">
-    <a href="Dashboard-relatorios-estoque.html">Dashboard</a>
-    <a href="index.html">Movimentações</a>
-    <a href="client-web-crud.html">Gerenciar Produtos</a>
-    <a href="listagem.html">Listagem Simples</a>
-</nav>
+<header>
+    <nav class="nav-links">
+        <a href="Dashboard-relatorios-estoque.html">Dashboard</a>
+        <a href="index.html">Movimentações</a>
+        <a href="client-web-crud.html">Gerenciar Produtos</a>
+        <a href="listagem.html">Listagem Simples</a>
+    </nav>
+</header>
 
-<style>
-    .nav-links {
-        display: flex;
-        justify-content: center; /* centraliza os links */
-        gap: 20px; /* espaçamento entre os links */
-        padding: 15px 0;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+<main>
+    <div class="container">
+        <h1>Dashboard • Gerenciar Produtos</h1>
 
-    .nav-links a {
-        text-decoration: none;
-        font-weight: 600;
-        color: #4f83ff;
-        padding: 8px 16px;
-        border-radius: 8px;
-        transition: all 0.3s ease; /* animação suave */
-    }
-
-    .nav-links a:hover {
-        background-color: #4f83ff;
-        color: white;
-        transform: translateY(-2px); /* efeito leve de “subida” */
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-</style>
-<div class="container">
-    <header>
-        <h1>Dashboard • Controle de Estoque</h1>
         <div class="actions">
-            <input id="filtroTexto" placeholder="Buscar por nome ou tipo" />
+            <input id="filtroTexto" placeholder="Buscar por nome ou categoria">
             <select id="statusFiltro">
                 <option value="">Todos os status</option>
                 <option>Disponível</option>
@@ -74,278 +66,80 @@
                 <option>Em Reposição</option>
                 <option>Em Promoção</option>
             </select>
-            <input id="limiteBaixo" type="number" min="0" value="5" />
             <button id="btnRecarregar">Recarregar</button>
-            <button id="btnExportarCSV">Exportar CSV</button>
-            <button id="btnExportarPDF">Exportar PDF</button>
         </div>
-    </header>
 
-    <section class="grid kpis" id="kpis"></section>
+        <div class="kpis">
+            <div class="kpi"><p>Total Produtos</p><h2 id="kpiTotal">0</h2></div>
+            <div class="kpi"><p>Total em Estoque</p><h2 id="kpiEstoque">0</h2></div>
+            <div class="kpi"><p>Categorias</p><h2 id="kpiCategorias">0</h2></div>
+            <div class="kpi"><p>Valor Total</p><h2 id="kpiValor">R$0,00</h2></div>
+        </div>
 
-    <div class="row">
-        <div class="card">
-            <div class="chart-title">Distribuição de estoque por <b>tipo</b></div>
-            <canvas id="chartPorTipo" height="220"></canvas>
+        <div class="charts">
+            <div class="chart-card">
+                <div class="chart-title">Distribuição por categoria</div>
+                <canvas id="chartCategoria" height="220"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Produtos por status</div>
+                <canvas id="chartStatus" height="220"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Top 5 valor em estoque</div>
+                <canvas id="chartTopValor" height="220"></canvas>
+            </div>
         </div>
-        <div class="card">
-            <div class="chart-title">Produtos por <b>status</b></div>
-            <canvas id="chartPorStatus" height="220"></canvas>
-        </div>
+
+        <table id="tblProdutos" class="display nowrap" style="width:100%">
+            <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th>Quantidade</th>
+                <th>Preço</th>
+                <th>Valor Total</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
+</main>
 
-    <div class="row" style="margin-top:16px">
-        <div class="card">
-            <div class="chart-title">Top 5 por <b>valor em estoque</b></div>
-            <canvas id="chartTopValor" height="220"></canvas>
-        </div>
-        <div class="card">
-            <div class="chart-title">Evolução temporal das movimentações</div>
-            <canvas id="chartEvolucao" height="220"></canvas>
-        </div>
-    </div>
-
-    <div class="row" style="margin-top:16px">
-        <div class="card" style="flex:1">
-            <div class="chart-title">📉 Produtos com baixo estoque</div>
-            <table id="tblBaixoEstoque"></table>
-        </div>
-        <div class="card" style="flex:1">
-            <div class="chart-title">🔥 Produtos em promoção</div>
-            <table id="tblPromocoes"></table>
-        </div>
-        <div class="card" style="flex:1">
-            <div class="chart-title">❌ Produtos esgotados</div>
-            <table id="tblEsgotados"></table>
-        </div>
-    </div>
-</div>
+<footer>
+    © 2025 Sistema de Controle de Estoque • Desenvolvido por Gabriel Sbruzzi
+</footer>
 
 <script>
     const BASE_URL = 'http://localhost:8080/produtos';
-    const MOV_URL = 'http://localhost:8080/movimentacoes';
     const BRL = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
-    let produtos = [];
-    let charts = {};
+    let produtos = [], table, charts={};
 
-    // Destrói gráfico antigo
-    function destroyChart(name){
-      if(charts[name]){
-        charts[name].destroy();
-        delete charts[name];
-      }
+    function normStatus(s){ if(!s) return 'Não informado'; s=s.toLowerCase(); if(s.includes('disponível')) return 'Disponível'; if(s.includes('indisponível')) return 'Indisponível'; if(s.includes('promo')) return 'Em Promoção'; if(s.includes('esgot')) return 'Esgotado'; return s.charAt(0).toUpperCase()+s.slice(1);}
+    function definirCategoria(p){ const nome=(p.nome||'').toLowerCase(); if(nome.includes("camisa")||nome.includes("calça")||nome.includes("sapato")) return "Vestuário"; if(nome.includes("fone")||nome.includes("notebook")||nome.includes("celular")) return "Eletrônicos"; if(nome.includes("copo")||nome.includes("prato")||nome.includes("panela")) return "Utilidades Domésticas"; return "Outros";}
+
+    async function load(){ try{ const res=await fetch(BASE_URL); const data=await res.json(); produtos=data.map(p=>{ const preco=+p.preco||0; const quantidade=+p.quantidade||0; const status=normStatus(p.status); return {...p,status,categoria:p.categoria||definirCategoria(p),preco,quantidade,valor:preco*quantidade};}); renderDashboard(); }catch(err){console.error(err); alert('Erro ao carregar produtos'); } }
+
+    function getFiltered(){ const texto=document.getElementById('filtroTexto').value.toLowerCase(); const statusFiltro=document.getElementById('statusFiltro').value.toLowerCase(); return produtos.filter(p=>{ let ok=true; if(texto && !(p.nome.toLowerCase().includes(texto) || (p.categoria||'').toLowerCase().includes(texto))) ok=false; if(statusFiltro && p.status.toLowerCase()!==statusFiltro) ok=false; return ok; });}
+
+    function renderDashboard(){ const filtered=getFiltered(); document.getElementById('kpiTotal').innerText=filtered.length; document.getElementById('kpiEstoque').innerText=filtered.reduce((a,p)=>a+p.quantidade,0); document.getElementById('kpiCategorias').innerText=new Set(filtered.map(p=>p.categoria)).size; document.getElementById('kpiValor').innerText=BRL.format(filtered.reduce((a,p)=>a+p.valor,0)); renderCharts(filtered); renderTable(filtered); }
+
+    function destroyChart(name){ if(charts[name]){ charts[name].destroy(); delete charts[name]; } }
+
+    function renderCharts(data){
+    destroyChart('categoria'); const cat={}; data.forEach(p=>cat[p.categoria]=(cat[p.categoria]||0)+p.quantidade); charts['categoria']=new Chart(document.getElementById('chartCategoria'),{type:'pie', data:{labels:Object.keys(cat), datasets:[{data:Object.values(cat), backgroundColor:['#4f83ff','#f39c12','#2ecc71','#e74c3c','#9b59b6']}]}, options:{responsive:true}});
+
+    destroyChart('status'); const status={}; data.forEach(p=>status[p.status]=(status[p.status]||0)+1); charts['status']=new Chart(document.getElementById('chartStatus'),{type:'doughnut', data:{labels:Object.keys(status), datasets:[{data:Object.values(status), backgroundColor:['#4f83ff','#f39c12','#2ecc71','#e74c3c','#9b59b6']}]}, options:{responsive:true}});
+
+    destroyChart('topvalor'); const top=[...data].sort((a,b)=>b.valor-a.valor).slice(0,5); charts['topvalor']=new Chart(document.getElementById('chartTopValor'),{type:'bar', data:{labels:top.map(p=>p.nome), datasets:[{label:'Valor em estoque', data:top.map(p=>p.valor), backgroundColor:'#4f83ff'}]}, options:{responsive:true}});
     }
 
-    // Normaliza status
-    function normStatus(s){
-      if(!s) return 'Não informado';
-      return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
-    }
+    function renderTable(data){ if(table){ table.clear().rows.add(data).draw(); } else { table=$('#tblProdutos').DataTable({ data:data, columns:[ {data:'nome'}, {data:'categoria'}, {data:'quantidade', render:q=>q<=5?`<span class="alert">${q}</span>`:q}, {data:'preco', render:p=>BRL.format(p)}, {data:'valor', render:v=>BRL.format(v)}, {data:'status'} ], dom:'Bfrtip', buttons:[ {extend:'csvHtml5', text:'Exportar CSV'}, {extend:'pdfHtml5', text:'Exportar PDF', orientation:'landscape', pageSize:'A4', exportOptions:{columns:':visible'}} ], pageLength:10, responsive:true, language:{ search:"Busca rápida:", lengthMenu:"Mostrar _MENU_ registros", info:"Mostrando _START_ a _END_ de _TOTAL_ produtos", paginate:{previous:"Anterior", next:"Próximo"}, zeroRecords:"Nenhum registro encontrado" } }); } }
 
-    // Carrega produtos do back-end
-    async function load(){
-      try{
-        const res = await fetch(BASE_URL);
-        const data = await res.json();
-
-        produtos = data.map(p => ({
-          ...p,
-          status: normStatus(p.status),
-          categoria: p.categoria || 'Não informado',
-          preco: +p.preco || 0,
-          quantidade: +p.quantidade || 0,
-          valor: (+p.preco || 0) * (+p.quantidade || 0)
-        }));
-
-        render();
-        loadMovimentacoes();
-      } catch(err){
-        console.error(err);
-        alert('Erro ao carregar produtos');
-      }
-    }
-
-    // Carrega movimentações para evolução temporal
-    async function loadMovimentacoes(){
-      try{
-        const res = await fetch(MOV_URL);
-        const movs = await res.json();
-        drawEvolucao(movs);
-      } catch(err){
-        console.error(err);
-      }
-    }
-
-    // Filtra produtos pelo input e status
-    function getFiltered(){
-  const texto = document.getElementById('filtroTexto').value.toLowerCase();
-  const statusFiltro = document.getElementById('statusFiltro').value.toLowerCase(); // <--- normalize
-  return produtos.filter(p => {
-    let ok = true;
-
-    // filtro por texto
-    if(texto && !(p.nome.toLowerCase().includes(texto) || (p.categoria || '').toLowerCase().includes(texto))){
-      ok = false;
-    }
-
-    // filtro por status
-    if(statusFiltro && p.status.toLowerCase() !== statusFiltro){ // <--- normalize
-      ok = false;
-    }
-
-    return ok;
-  });
-}
-
-
-    // Renderiza todos os gráficos e tabelas
-    function render(){
-      drawKPIs();
-      drawPorTipo();
-      drawPorStatus();
-      drawTopValor();
-      drawTables();
-    }
-
-    // KPIs
-    function drawKPIs(){
-      const lista = getFiltered();
-      const totalProdutos = lista.length;
-      const totalEstoque = lista.reduce((a,p)=>a+p.quantidade,0);
-      const categorias = new Set(lista.map(p=>p.categoria)).size;
-      const valorTotal = lista.reduce((a,p)=>a+p.valor,0);
-
-      document.getElementById('kpis').innerHTML = `
-        <div class="kpi"><p>Total Produtos</p><h2>${totalProdutos}</h2></div>
-        <div class="kpi"><p>Total em Estoque</p><h2>${totalEstoque}</h2></div>
-        <div class="kpi"><p>Categorias</p><h2>${categorias}</h2></div>
-        <div class="kpi"><p>Valor Total</p><h2>${BRL.format(valorTotal)}</h2></div>`;
-    }
-
-    // Gráfico por tipo
-    function drawPorTipo(){
-      destroyChart('tipo');
-      const lista = getFiltered();
-      const agrup = {};
-      lista.forEach(p => {
-        agrup[p.categoria] = (agrup[p.categoria] || 0) + p.quantidade;
-      });
-      const ctx = document.getElementById('chartPorTipo');
-      charts['tipo'] = new Chart(ctx, {
-        type: 'pie',
-        data: { labels: Object.keys(agrup), datasets: [{ data: Object.values(agrup) }] },
-        options: { responsive: true }
-      });
-    }
-
-    // Gráfico por status
-    function drawPorStatus(){
-      destroyChart('status');
-      const lista = getFiltered();
-      const agrup = {};
-      lista.forEach(p => { agrup[p.status] = (agrup[p.status]||0) + 1; });
-      const ctx = document.getElementById('chartPorStatus');
-      charts['status'] = new Chart(ctx, {
-        type: 'doughnut',
-        data: { labels: Object.keys(agrup), datasets: [{ data: Object.values(agrup) }] },
-        options: { responsive: true }
-      });
-    }
-
-    // Top 5 por valor em estoque
-    function drawTopValor(){
-      destroyChart('topvalor');
-      const lista = getFiltered();
-      const top = [...lista].sort((a,b)=>b.valor-a.valor).slice(0,5);
-      const ctx = document.getElementById('chartTopValor');
-      charts['topvalor'] = new Chart(ctx, {
-        type: 'bar',
-        data: { labels: top.map(p=>p.nome), datasets:[{label:'Valor em estoque', data:top.map(p=>p.valor), backgroundColor:'#4f83ff'}] },
-        options: { responsive: true }
-      });
-    }
-
-    // Evolução temporal das movimentações
-    function drawEvolucao(movs){
-      destroyChart('evolucao');
-      const porDia = {};
-      movs.forEach(m => {
-        const d = new Date(m.data);
-        const dia = d.toLocaleDateString('pt-BR');
-        const qtd = m.tipo.toLowerCase().includes('saída') ? -m.quantidade : m.quantidade;
-        porDia[dia] = (porDia[dia] || 0) + qtd;
-      });
-      const labels = Object.keys(porDia).sort((a,b)=>{
-        const pa=a.split('/').reverse().join('-');
-        const pb=b.split('/').reverse().join('-');
-        return new Date(pa) - new Date(pb);
-      });
-      let total=0;
-      const values = labels.map(l => { total += porDia[l]; return total; });
-      const ctx = document.getElementById('chartEvolucao');
-      charts['evolucao'] = new Chart(ctx, {
-        type:'line',
-        data:{ labels, datasets:[{ label:'Estoque acumulado', data:values, borderColor:'#4f83ff', fill:false }] },
-        options:{ responsive:true, tension:0.3 }
-      });
-    }
-
-    // Preenche tabelas de baixo estoque, promoções e esgotados
-    function drawTables(){
-      const lista = getFiltered();
-      const limite = Number(document.getElementById('limiteBaixo').value) || 5;
-      const baixo = lista.filter(p => p.quantidade <= limite);
-      const promo = lista.filter(p => p.status.toLowerCase() === 'em promoção');
-      const esgotados = lista.filter(p => p.status.toLowerCase() === 'esgotado' || p.quantidade === 0);
-
-      function buildTable(arr){
-        if(arr.length===0) return '<tr><td colspan="3">Nenhum</td></tr>';
-        return '<tr><th>Produto</th><th>Qtd</th><th>Valor</th></tr>' +
-          arr.map(p => `<tr><td>${p.nome}</td><td class="${p.quantidade<=limite?'alert':''}">${p.quantidade}</td><td>${BRL.format(p.valor)}</td></tr>`).join('');
-      }
-
-      document.getElementById('tblBaixoEstoque').innerHTML = buildTable(baixo);
-      document.getElementById('tblPromocoes').innerHTML = buildTable(promo, true);
-      document.getElementById('tblEsgotados').innerHTML = buildTable(esgotados);
-    }
-
-    // Export CSV
-    function exportarCSV(){
-      const lista = getFiltered();
-      let csv = "Nome;Categoria;Quantidade;Preço;Valor;Status\n";
-      lista.forEach(p => {
-        csv += `${p.nome};${p.categoria};${p.quantidade};${p.preco};${p.valor};${p.status}\n`;
-      });
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "estoque.csv";
-      link.click();
-    }
-
-    // Export PDF
-    function exportarPDF(){
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.setFontSize(14);
-      doc.text("Relatório de Estoque", 10, 10);
-      let y = 20;
-      getFiltered().forEach(p => {
-        doc.text(`${p.nome} | Qtd: ${p.quantidade} | ${BRL.format(p.valor)} | ${p.status}`, 10, y);
-        y += 8;
-        if(y > 280){ doc.addPage(); y=20; }
-      });
-      doc.save("estoque.pdf");
-    }
-
-    // Eventos
     document.getElementById('btnRecarregar').addEventListener('click', load);
-    document.getElementById('btnExportarCSV').addEventListener('click', exportarCSV);
-    document.getElementById('btnExportarPDF').addEventListener('click', exportarPDF);
-    document.getElementById('filtroTexto').addEventListener('input', render);
-    document.getElementById('statusFiltro').addEventListener('change', render);
-    document.getElementById('limiteBaixo').addEventListener('input', render);
-
+    document.getElementById('filtroTexto').addEventListener('input', renderDashboard);
+    document.getElementById('statusFiltro').addEventListener('change', renderDashboard);
     document.addEventListener('DOMContentLoaded', load);
 </script>
 </body>
