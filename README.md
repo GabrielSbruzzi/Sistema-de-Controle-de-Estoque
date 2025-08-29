@@ -49,8 +49,6 @@ Permite gerenciar produtos, registrar movimentações e visualizar o estoque de 
 Este projeto está licenciado sob a **MIT License**.
 Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
----
-
 ## 👨‍💻 Desenvolvedor
 
 **Gabriel Sbruzzi**
