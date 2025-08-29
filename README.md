@@ -57,5 +57,3 @@ Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 [GitHub](https://github.com/GabrielSbruzzi) | [LinkedIn](https://www.linkedin.com/in/gabriel-sbruzzi/)
 
 ```
-Quer que eu faça essa versão?
-```
