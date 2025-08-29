@@ -53,5 +53,3 @@ Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 **Gabriel Sbruzzi**
 [GitHub](https://github.com/GabrielSbruzzi) | [LinkedIn](https://www.linkedin.com/in/gabriel-sbruzzi/)
-
-```
